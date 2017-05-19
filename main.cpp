@@ -1,39 +1,85 @@
 #include <stdio.h>
-#include <time.h>
-#include <unistd.h>
 #include <iostream>
+#include <string.h>
 using namespace std;
 
-string getInitials(string);
+int main(int argc , char *argv[]) {
 
-int main(void){
-    // crack passwords
+    // ci = (pi + k) % 26
 
-    unsigned long seed[2];
-    char salt[] = "$1$........";
-    const char *const seedchars =
-            "./0123456789ABCDEFGHIJKLMNOPQRST"
-                    "UVWXYZabcdefghijklmnopqrstuvwxyz";
-    char *password;
-    int i;
+    string cypher;
+    string backToPlain;
+    string message;
+    int key;
+    bool decypherIt = false;
+    bool cypherIt = false;
 
-    /* Generate a (not very) random seed.
-       You should do it better than this... */
-    seed[0] = time(NULL);
-    seed[1] = getpid() ^ (seed[0] >> 14 & 0x30000);
+    if (argc > 3) {
 
-    /* Turn it into printable characters from ‘seedchars’. */
-    for (i = 0; i < 8; i++)
-        salt[3+i] = seedchars[(seed[i/5] >> (i%5)*6) & 0x3f];
+        if (strcmp(argv[1], "cypher") == 0)
+            cypherIt = true;
 
-    /* Read in the user’s password and encrypt it. */
-    password = crypt(getpass("Password:"), salt);
+        if (strcmp(argv[1], "decypher") == 0)
+            decypherIt = true;
 
-    /* Print the results. */
-    puts(password);
-    return 0;
+        key = atoi(argv[2]);
 
+        if(!isdigit(atoi(argv[2])))
+            printf("please enter a key to cypher. ex: ./main cypher 2 hello world\n");
 
+    } else {
+        printf("Please enter either cypher or decypher and a key");
+    }
 
+    if (cypherIt) {
+        for (int i = 3; i < argc; i++) {
+            for (int j = 0, n=strlen(argv[i]); j < n; j++) {
+
+                if (argv[i][j] != '\0') {
+
+                    if (!isalpha(argv[i][j])) {
+                        cypher += argv[i][j];
+                    } else if (isupper(argv[i][j])) {
+                        cypher += (((argv[i][j] - 65) + key) % 26) + 65;
+                    } else if (islower(argv[i][j])) {
+                        cypher += (((argv[i][j] - 97) + key) % 26) + 97;
+                    }
+                }
+            }
+            cypher += " ";
+        }
+    }
+
+    if(decypherIt) {
+        for (int i = 3; i < argc; i++) {
+            for(int j=0, n=strlen(argv[i]); j<n ;j++) {
+
+                if (!isalpha(argv[i][j])) {
+                    backToPlain += argv[i][j];
+                } else if (isupper(argv[i][j])) {
+                    backToPlain += (((argv[i][j] - 90) - key) % 26) + 90;
+                } else if (islower(argv[i][j])) {
+                    backToPlain += (((argv[i][j] - 122) - key) % 26) + 122;
+                }
+            }
+
+            backToPlain += " ";
+        }
+    }
+
+    for (int i = 3; i < argc; i++) {
+        message += argv[i];
+        message += " ";
+    }
+
+    if(cypherIt) {
+        printf("Your message: %s\n", message.c_str());
+        printf("Your cypher: %s\n", cypher.c_str());
+    }
+    else if(decypherIt) {
+        printf("The cyphered message is: %s\n ", backToPlain.c_str());
+    } else {
+        printf("Please enter either cypher or decypher in the command line");
+    }
 }
 
