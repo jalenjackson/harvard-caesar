@@ -52,7 +52,7 @@ int main(int argc , char *argv[]) {
 
     if(decypherIt) {
         for (int i = 3; i < argc; i++) {
-            for(int j=0, n=strlen(argv[i]); j<n ;j++) {
+            for(int j=0, n=strlen(argv[i]); j<;j++) {
 
                 if (!isalpha(argv[i][j])) {
                     backToPlain += argv[i][j];
